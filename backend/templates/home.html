@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block links %}
+<style>
+    a{
+        text-decoration:none;
+    }
+    .results-card{
+        display:flex;
+        flex-direction:column;
+        justify-content:center;
+        position:absolute;
+        left:25%;
+        top:100%;
+        background:white;
+        border:2px solid black;
+    }
+    .item{
+        border-bottom:2px solid black;
+        height:100%;
+    }
+    .not-visible{
+        display:none;
+    }
+    .gg{
+        position:absolute;
+    }
+</style>
+{% endblock links %}
+{% block body %}
+<div style='padding:1em;'>
+    <div style='text-aling:center;display:flex;flex-direction:column;justify-content:center;position: relative;' class="w-100 text-center gg">
+        <form id='s-form' autocomplete="off" style="position:relative;width:100%;display:flex;justify-content:center;">
+            {% csrf_token %}
+            <input type="text" id='search-inp' class="form-control form-control-lg w-50 search" placeholder="Enter coin name...">
+        </form>
+        <div id="results" class="results-card not-visible w-50"></div>
+    </div>
+    <div style="width:100%;display:flex;justify-content:center;">
+    <table style="width:70%;" class="table table-hover">
+        <thead class="thead-dark">
+            <th scope='col'>Name</th>
+            <th scope='col'>Short Name</th>
+            <th scope='col'>Logo</th>
+            <th scope='col'>Rank</th>
+            <th scope='col'>Market Cap</th>
+            <th scope='col'>Price</th>
+            <th scope='col'>Max for 24 hours</th>
+            <th scope='col'>Min for 24 hours</th>
+        </thead>
+        <tbody>
+            {% if data %}
+                {% for obj in data %}
+                    <tr>
+                        <td class="align-middle">{{obj.name}}</td>
+                        <td class="align-middle">{{obj.symb}}</td>
+                        <td><img src="{{obj.img}}" height="40"></td>
+                        <td class="align-middle">{{obj.rank}}</td>
+                        <td class="align-middle">{{obj.market_up}}</td>
+                        <td class="align-middle">{{obj.price}}${% if obj.to_up == True %}<span style="color:green;">▲</span>{% elif obj.to_up == False %}<span style="color:red;">▼</span>{% endif %}</td> 
+                        <td class="align-middle">{{obj.maxfor24}}$</td>
+                        <td class="align-middle">{{obj.minfor24}}$</td>
+                        {% if user.is_authenticated %}
+                            {% if obj.is_fav %}
+                                <td class="align-middle"><a href="{% url 'folow' obj.pk gg %}" class="btn btn-danger">Remove</a></td>
+                            {% else %}
+                                <td class="align-middle"><a href="{% url 'folow' obj.pk gg %}" class="btn btn-success">Add</a></td>
+                            {% endif %}
+                        {% endif %}
+                    </tr>
+                {% endfor %}
+            {% else %}
+            <th class="align-middle"><h2>Nothing here...</h2></th>
+            {% endif %}
+        </tbody>
+    </table>
+    <div>
+</div>
+{% endblock body %}
+{% block scripts %}
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="{% static 'live_search_js.js' %}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-pprn3073KE6tl6bjs2QrFaJGz5/SUsLqktiwsUTF55Jfv3qYSDhgCecCxMW52nD2" crossorigin="anonymous"></script>
+{% endblock scripts %}

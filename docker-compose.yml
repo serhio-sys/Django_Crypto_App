@@ -1,0 +1,40 @@
+version: '3.9'
+
+services:
+  db:
+    image: postgres:15
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      - "POSTGRES_HOST_AUTH_METHOD=trust"
+
+  redis:
+    image: redis
+    restart: always
+
+  back-end:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    volumes:
+      - .:/backend
+    ports:
+      - 8000:8000
+    depends_on:
+      - db
+  
+  worker:
+    restart: always
+    build: ./backend
+    command: ['celery', '--workdir=./', '-A', 'Settings', 'worker' ]
+  
+  beat:
+    restart: always
+    build: ./backend
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    command: ['celery', '--workdir=./', '-A', 'Settings', 'beat', '-l', 'INFO', '--scheduler', 'django_celery_beat.schedulers:DatabaseScheduler']
+    
+
+volumes:
+  postgres_data:
