@@ -22,9 +22,9 @@ const sendData = (coin) =>{
                 data.forEach(coin=>{
                     results.innerHTML += `
                     <a href="" class="item">
-                        <div class="row mt-2 mb-2">
-                            <div class="col-2"><img src="${coin.img}" height="50"></div>
-                            <div class="col-10">
+                        <div style="display:flex;justify-content:space-evenly;align-items:center;">
+                            <div><img src="${coin.img}" height="50"></div>
+                            <div style="height:100%;display:flex;gap:1em;align-items:center;">
                                 <h5>${coin.sym}</h5>
                                 <p class="text-muted">${coin.name}</p>
                             </div>

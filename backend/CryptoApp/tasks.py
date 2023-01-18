@@ -6,7 +6,7 @@ from celery import app
 
 @shared_task
 def create_all_coins():
-    url = "https://api.coingecko.com/api/v3/coins/markets?vs_currency=USD&order=market_cap_desc&per_page=100&page=1&sparkline=false"
+    url = "https://api.coingecko.com/api/v3/coins/markets?vs_currency=USD&order=market_cap_desc&per_page=500&page=1&sparkline=false"
     data = requests.get(url=url).json()
     
     for i in data:
@@ -15,7 +15,7 @@ def create_all_coins():
         p.symb = i['symbol']
         p.rank = i['market_cap_rank']
         try:
-            if int(p.price)>int(i['current_price']):
+            if float(p.price)>float(i['current_price']):
                 p.to_up = False
             else:
                 p.to_up = True

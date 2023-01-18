@@ -13,6 +13,7 @@ from django.contrib.auth import logout
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import LoginView
+from django.core.paginator import Paginator
 
 def generate(fr,to,req):
     for item in fr:
@@ -41,17 +42,20 @@ class CoinsView(View):
             generate(fr=data, to=nm,req=request)
         else:
             nm = data
-        return render(request=request, template_name='home.html',context={'data':nm,'name':"BIRZHA","gg":"gg"})
+        pag = Paginator(nm, 50)
+        page_num = request.GET.get("page")
+        page_obj = pag.get_page(page_num)
+        return render(request=request, template_name='home.html',context={'data':page_obj,'name':"BIRZHA"})
 
 @login_required
-def fav_coin(request,pk,wr):
-    favorite = get_object_or_404(Coin,pk=pk)
-    if favorite.fav.filter(pk=request.user.pk).exists():
-        favorite.fav.remove(request.user)
-    else:
-        favorite.fav.add(request.user)
-    if wr == "prof":
-        return redirect("prof")
+def fav_coin(request,pk):
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        favorite = get_object_or_404(Coin,pk=pk)
+        if favorite.fav.filter(pk=request.user.pk).exists():
+            favorite.fav.remove(request.user)
+        else:
+            favorite.fav.add(request.user)
+        return JsonResponse({},status=200)
     return redirect("home")
 
 @login_required
@@ -73,7 +77,7 @@ class RegistrationView(CreateView):
 @login_required
 def profile(request):
     data = request.user.fav.all()
-    return render(request=request, template_name="profile.html",context={'data':data,'prof':'prof'})
+    return render(request=request, template_name="profile.html",context={'data':data})
             
 
 def search(request):
